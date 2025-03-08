@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Aquarium extends Frame implements Runnable {
@@ -40,13 +41,23 @@ public class Aquarium extends Frame implements Runnable {
         }
 
         while (runOK) {
+            // Check for food and try eating
             for (Fish fish : fishes) {
-                fish.moveTowardsFood(foodList);
-                fish.swim();
+                fish.checkForFood(foodList);
             }
-            for (Food food : foodList) {
+
+            // Process fish movement
+            for (Fish fish : fishes) {
+                fish.swim();
+                fish.tryToEat(foodList);
+            }
+
+            // Process food movement
+            for (Iterator<Food> iterator = foodList.iterator(); iterator.hasNext();) {
+                Food food = iterator.next();
                 food.fall();
             }
+
             try {
                 Thread.sleep(20);
             } catch (Exception exp) {

@@ -15,11 +15,16 @@ public class Aquarium extends Frame implements Runnable {
 
     Thread thread;
 
-    int numberFish = 12;
+    int initialFishCount = 12;
     Vector<Fish> fishes = new Vector<Fish>();
     ArrayList<Food> foodList = new ArrayList<>();
 
     boolean runOK = true;
+
+    // Display text
+    String statusText = "";
+    long statusTextDisplayTime = 0;
+    long STATUS_TEXT_DURATION = 3000; // 3 seconds
 
     public static void main(String[] args) {
         new Aquarium();
@@ -30,7 +35,7 @@ public class Aquarium extends Frame implements Runnable {
                 getSize().width - (getInsets().left + getInsets().right),
                 getSize().height - (getInsets().top + getInsets().bottom));
 
-        for (int loopIndex = 0; loopIndex < numberFish; loopIndex++) {
+        for (int loopIndex = 0; loopIndex < initialFishCount; loopIndex++) {
             fishes.add(new Fish(fishImages[0], fishImages[1], edges, this));
             try {
                 Thread.sleep(20);
@@ -39,16 +44,39 @@ public class Aquarium extends Frame implements Runnable {
             }
         }
 
+        int cycleCounter = 0;
+        int aliveCount = fishes.size();
+
         while (runOK) {
+            cycleCounter++;
+
             // Check for food and try eating
             for (Fish fish : fishes) {
                 fish.checkForFood(foodList);
             }
 
-            // Process fish movement
+            // Process fish movement and hunger
+            int currentAliveCount = 0;
             for (Fish fish : fishes) {
                 fish.swim();
                 fish.tryToEat(foodList);
+
+                // Update hunger every 5 cycles to slow down hunger rate
+                if (cycleCounter % 5 == 0) {
+                    fish.updateHunger();
+                }
+
+                if (!fish.isDead()) {
+                    currentAliveCount++;
+                }
+            }
+
+            // Display status message if fish died this cycle
+            if (currentAliveCount < aliveCount) {
+                int deadCount = aliveCount - currentAliveCount;
+                statusText = deadCount + " fish died of hunger!";
+                statusTextDisplayTime = System.currentTimeMillis();
+                aliveCount = currentAliveCount;
             }
 
             // Process food movement
@@ -115,12 +143,24 @@ public class Aquarium extends Frame implements Runnable {
 
     public void update(Graphics g) {
         memoryGraphics.drawImage(aquariumImage, 0, 0, this);
+
+        // Draw all fish (dead or alive)
         for (Fish fish : fishes) {
             fish.draw(memoryGraphics);
         }
+
+        // Draw all food
         for (Food food : foodList) {
             food.draw(memoryGraphics, this);
         }
+
+        // Display status text if needed
+        if (System.currentTimeMillis() - statusTextDisplayTime < STATUS_TEXT_DURATION) {
+            memoryGraphics.setColor(Color.WHITE);
+            memoryGraphics.setFont(new Font("Arial", Font.BOLD, 18));
+            memoryGraphics.drawString(statusText, 20, 60);
+        }
+
         g.drawImage(memoryImage, 0, 0, this);
     }
 }

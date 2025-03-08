@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Random;
+import java.awt.Color;
 
 public class Fish {
     private static final int MIN_X = 100;
@@ -21,6 +22,12 @@ public class Fish {
     private static final int EATING_DISTANCE = 20;
     private static final int CHASE_SPEED = 6;
 
+    // Hunger system parameters
+    private static final int MAX_HUNGER = 1000;
+    private static final int HUNGER_INCREASE_RATE = 2;
+    private static final int FOOD_HUNGER_DECREASE = 300;
+    private static final int HUNGER_WARNING = MAX_HUNGER * 3 / 4;
+
     private Component tank;
     private Image image1;
     private Image image2;
@@ -30,6 +37,10 @@ public class Fish {
     private Random random;
     private boolean chasingFood = false;
     private Food targetFood = null;
+
+    // Hunger system variables
+    private int hungerLevel = 0;
+    private boolean isDead = false;
 
     public Fish(Image image1, Image image2, Rectangle edges, Component tank) {
         random = new Random(System.currentTimeMillis());
@@ -47,9 +58,29 @@ public class Fish {
         this.velocity = new Point(
                 random.nextInt(MAX_VELOCITY * 2 + 1) - MAX_VELOCITY,
                 random.nextInt(MAX_VELOCITY * 2 + 1) - MAX_VELOCITY);
+
+        // Start with a random hunger level so not all fish get hungry at the same time
+        this.hungerLevel = random.nextInt(MAX_HUNGER / 2);
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public void updateHunger() {
+        if (isDead)
+            return;
+
+        hungerLevel += HUNGER_INCREASE_RATE;
+        if (hungerLevel >= MAX_HUNGER) {
+            isDead = true;
+        }
     }
 
     public void checkForFood(ArrayList<Food> foodList) {
+        if (isDead)
+            return;
+
         // If already chasing food, continue unless it's gone
         if (chasingFood && targetFood != null) {
             if (!foodList.contains(targetFood)) {
@@ -82,6 +113,9 @@ public class Fish {
     }
 
     public boolean tryToEat(ArrayList<Food> foodList) {
+        if (isDead)
+            return false;
+
         if (targetFood != null && foodList.contains(targetFood)) {
             double distance = calculateDistance(
                     location.x + image1.getWidth(tank) / 2,
@@ -93,6 +127,10 @@ public class Fish {
                 foodList.remove(targetFood);
                 targetFood = null;
                 chasingFood = false;
+
+                // Reduce hunger when eating
+                hungerLevel = Math.max(0, hungerLevel - FOOD_HUNGER_DECREASE);
+
                 return true;
             }
         }
@@ -100,6 +138,9 @@ public class Fish {
     }
 
     public void swim() {
+        if (isDead)
+            return;
+
         if (chasingFood && targetFood != null) {
             // Calculate direction to food
             int centerX = location.x + image1.getWidth(tank) / 2;
@@ -154,7 +195,24 @@ public class Fish {
     }
 
     public void draw(Graphics g) {
-        // Select image based on movement direction
+        if (isDead) {
+            // Draw a dead fish (upside down)
+            g.drawImage(velocity.x < 0 ? image1 : image2,
+                    location.x, location.y + image1.getHeight(tank),
+                    image1.getWidth(tank), -image1.getHeight(tank), tank);
+            return;
+        }
+
+        // Draw regular fish
         g.drawImage(velocity.x < 0 ? image1 : image2, location.x, location.y, tank);
+
+        // Draw hunger indicator if getting hungry
+        if (hungerLevel > HUNGER_WARNING) {
+            g.setColor(Color.RED);
+            int indicatorSize = 5;
+            g.fillOval(location.x + image1.getWidth(tank) / 2 - indicatorSize / 2,
+                    location.y - indicatorSize - 2,
+                    indicatorSize, indicatorSize);
+        }
     }
 }

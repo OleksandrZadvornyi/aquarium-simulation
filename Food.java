@@ -17,7 +17,7 @@ class Food {
     public void fall() {
         if (!reachedBottom) {
             y += speed;
-            if (y >= 450) { // Ліміт для падіння
+            if (y >= 450) { // Falling limit
                 reachedBottom = true;
             }
         }

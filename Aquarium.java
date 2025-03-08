@@ -67,9 +67,13 @@ public class Aquarium extends Frame implements Runnable {
         });
 
         tracker = new MediaTracker(this);
-        fishImages[0] = Toolkit.getDefaultToolkit().getImage("fish1.png");
+        fishImages[0] = Toolkit.getDefaultToolkit().getImage("fish-left.png").getScaledInstance(50, 30,
+                Image.SCALE_SMOOTH);
+        ;
         tracker.addImage(fishImages[0], 0);
-        fishImages[1] = Toolkit.getDefaultToolkit().getImage("fish2.png");
+        fishImages[1] = Toolkit.getDefaultToolkit().getImage("fish-right.png").getScaledInstance(50, 30,
+                Image.SCALE_SMOOTH);
+        ;
         tracker.addImage(fishImages[1], 0);
         aquariumImage = Toolkit.getDefaultToolkit().getImage("aquarium.jpg");
         tracker.addImage(aquariumImage, 0);

@@ -1,17 +1,13 @@
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class Aquarium extends Frame implements Runnable {
     MediaTracker tracker;
     Image aquariumImage;
     Image[] fishImages = new Image[2];
+    Image foodImage;
 
     Image memoryImage;
     Graphics memoryGraphics;
@@ -20,6 +16,7 @@ public class Aquarium extends Frame implements Runnable {
 
     int numberFish = 12;
     Vector<Fish> fishes = new Vector<Fish>();
+    ArrayList<Food> foodList = new ArrayList<>();
 
     boolean runOK = true;
 
@@ -42,11 +39,13 @@ public class Aquarium extends Frame implements Runnable {
             }
         }
 
-        Fish fish;
         while (runOK) {
-            for (int loopIndex = 0; loopIndex < numberFish; loopIndex++) {
-                fish = (Fish) fishes.elementAt(loopIndex);
+            for (Fish fish : fishes) {
+                fish.moveTowardsFood(foodList);
                 fish.swim();
+            }
+            for (Food food : foodList) {
+                food.fall();
             }
             try {
                 Thread.sleep(20);
@@ -67,16 +66,19 @@ public class Aquarium extends Frame implements Runnable {
         });
 
         tracker = new MediaTracker(this);
-        fishImages[0] = Toolkit.getDefaultToolkit().getImage("fish-left.png").getScaledInstance(50, 30,
-                Image.SCALE_SMOOTH);
-        ;
-        tracker.addImage(fishImages[0], 0);
-        fishImages[1] = Toolkit.getDefaultToolkit().getImage("fish-right.png").getScaledInstance(50, 30,
-                Image.SCALE_SMOOTH);
-        ;
-        tracker.addImage(fishImages[1], 0);
+        fishImages[0] = Toolkit.getDefaultToolkit().getImage("fish-left.png")
+                .getScaledInstance(50, 30, Image.SCALE_SMOOTH);
+        fishImages[1] = Toolkit.getDefaultToolkit().getImage("fish-right.png")
+                .getScaledInstance(50, 30, Image.SCALE_SMOOTH);
         aquariumImage = Toolkit.getDefaultToolkit().getImage("aquarium.jpg");
+        foodImage = Toolkit.getDefaultToolkit().getImage("food.png")
+                .getScaledInstance(10, 10, Image.SCALE_SMOOTH);
+
+        tracker.addImage(fishImages[0], 0);
+        tracker.addImage(fishImages[1], 0);
         tracker.addImage(aquariumImage, 0);
+        tracker.addImage(foodImage, 0);
+
         try {
             tracker.waitForID(0);
         } catch (Exception ex) {
@@ -90,14 +92,24 @@ public class Aquarium extends Frame implements Runnable {
         memoryImage = createImage(getSize().width, getSize().height);
         memoryGraphics = memoryImage.getGraphics();
 
+        addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                foodList.add(new Food(e.getX(), e.getY(), foodImage));
+                repaint();
+            }
+        });
+
         thread = new Thread(this);
         thread.start();
     }
 
     public void update(Graphics g) {
         memoryGraphics.drawImage(aquariumImage, 0, 0, this);
-        for (int loopIndex = 0; loopIndex < numberFish; loopIndex++) {
-            fishes.elementAt(loopIndex).draw(memoryGraphics);
+        for (Fish fish : fishes) {
+            fish.draw(memoryGraphics);
+        }
+        for (Food food : foodList) {
+            food.draw(memoryGraphics, this);
         }
         g.drawImage(memoryImage, 0, 0, this);
     }

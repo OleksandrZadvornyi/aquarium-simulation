@@ -1,3 +1,5 @@
+package com.zadvornyi.aquarium;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -104,12 +106,16 @@ public class Aquarium extends Frame implements Runnable {
         });
 
         tracker = new MediaTracker(this);
-        fishImages[0] = Toolkit.getDefaultToolkit().getImage("fish-left.png")
+        fishImages[0] = Toolkit.getDefaultToolkit().getImage(
+                "resources/images/fish-left.png")
                 .getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-        fishImages[1] = Toolkit.getDefaultToolkit().getImage("fish-right.png")
+        fishImages[1] = Toolkit.getDefaultToolkit().getImage(
+                "resources/images/fish-right.png")
                 .getScaledInstance(50, 30, Image.SCALE_SMOOTH);
-        aquariumImage = Toolkit.getDefaultToolkit().getImage("aquarium.jpg");
-        foodImage = Toolkit.getDefaultToolkit().getImage("food.png")
+        aquariumImage = Toolkit.getDefaultToolkit().getImage(
+                "resources/images/aquarium.jpg");
+        foodImage = Toolkit.getDefaultToolkit().getImage(
+                "resources/images/food.png")
                 .getScaledInstance(10, 10, Image.SCALE_SMOOTH);
 
         tracker.addImage(fishImages[0], 0);

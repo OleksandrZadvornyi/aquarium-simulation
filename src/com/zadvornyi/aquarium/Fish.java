@@ -1,3 +1,5 @@
+package com.zadvornyi.aquarium;
+
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;

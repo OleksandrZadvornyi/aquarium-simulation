@@ -22,7 +22,6 @@ public class Aquarium extends Frame implements Runnable {
     boolean runOK = true;
 
     public static void main(String[] args) {
-        System.out.println("Aquarium starting");
         new Aquarium();
     }
 

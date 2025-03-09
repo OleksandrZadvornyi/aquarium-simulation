@@ -6,6 +6,10 @@ A **Java-based interactive aquarium simulation** where fish swim around and can 
 
 This simulation creates a graphical window displaying an aquarium with multiple fish that move independently. Users can interact with the simulation by clicking anywhere on the screen to drop food, which the fish will swim toward. The project is built using Java's **Abstract Window Toolkit (AWT)** and demonstrates concepts like animation, event handling, and double-buffered graphics.
 
+<p align="center">
+  <img width="600" src="./resources/images/preview.png" />
+</p>
+
 ## Features
 
 - **Animated Fish**: fish swim with natural-looking movement patterns, including random direction changes and boundary detection.
